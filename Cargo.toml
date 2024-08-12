@@ -1,0 +1,15 @@
+[package]
+name = "steam-web-api-consumer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.86"
+chrono = { version = "0.4.38", features = ["serde"] }
+itertools = "0.13.0"
+reqwest = { version = "0.12.5", features = ["blocking"] }
+rpassword = "7.3.1"
+rusqlite = { version = "0.32.1", features = ["bundled", "chrono", "serde_json"] }
+serde = { version = "1.0.206", features = ["derive", "alloc"] }
+serde_json = { version = "1.0.123", features = ["alloc"] }
+thiserror = "1.0.63"
