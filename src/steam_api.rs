@@ -19,11 +19,24 @@ pub enum SteamFailure {
     Deserialize(#[from] serde_json::Error),
 }
 
-#[derive(Copy, Clone, Debug, Deserialize)]
+use rusqlite::types::{FromSql, FromSqlResult, ToSql, ToSqlOutput, ValueRef};
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Deserialize)]
 #[serde(try_from = "&str")]
 // 64-bit Steam IDs are a packed data structure, but for laziness' sake we'll leave it as an unvalidated number.
 // https://developer.valvesoftware.com/wiki/SteamID
-pub struct SteamId(u64);
+pub struct SteamId(pub i64);
+
+impl ToSql for SteamId {
+    fn to_sql(&self) -> rusqlite::Result<ToSqlOutput<'_>> {
+        Ok(ToSqlOutput::Owned(self.0.into()))
+    }
+}
+
+impl FromSql for SteamId {
+    fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
+        Ok(Self(value.as_i64()?))
+    }
+}
 
 impl Display for SteamId {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -59,14 +72,14 @@ pub struct Friend {
 
 // There's a lot more than this available, but this is enough for our purposes.
 // https://developer.valvesoftware.com/wiki/Steam_Web_API#GetPlayerSummaries_.28v0002.29
-#[derive(Debug, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Deserialize)]
 pub struct PlayerSummary {
     #[serde(rename = "steamid")]
-    steam_id: SteamId,
+    pub steam_id: SteamId,
     #[serde(rename = "personaname")]
-    persona_name: String,
+    pub persona_name: String,
     #[serde(rename = "profileurl")]
-    profile_url: String,
+    pub profile_url: String,
 }
 
 pub struct SteamClient<'a> {

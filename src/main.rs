@@ -1,7 +1,9 @@
 mod steam_api;
+mod sql;
 
 use anyhow::Result;
 use steam_api::SteamClient;
+use crate::sql::DbConnection;
 
 const MY_ID: &'static str = "76561197996714010";
 
@@ -14,7 +16,12 @@ fn main() -> Result<()> {
 
     let client = SteamClient::new(&api_key);
     let friends = client.get_friend_list(MY_ID)?;
-    let friend_details = dbg!(client.get_player_summaries(&friends.iter().map(|f| f.steam_id).collect::<Vec<_>>()));
+    let friend_details = client.get_player_summaries(&friends.iter().map(|f| f.steam_id).collect::<Vec<_>>())?;
+
+    let mut db = DbConnection::new_with_default_name()?;
+    db.create_table()?;
+    db.update_player_summaries(&friend_details)?;
+    drop(db);
 
     Ok(())
 }
