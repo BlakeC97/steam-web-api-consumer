@@ -3,6 +3,10 @@ name = "steam-web-api-consumer"
 version = "0.1.0"
 edition = "2021"
 
+[profile.release]
+strip = true
+lto = "thin"
+
 [dependencies]
 anyhow = "1.0.86"
 chrono = { version = "0.4.38", features = ["serde"] }

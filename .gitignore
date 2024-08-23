@@ -23,3 +23,5 @@ target/
 # Added by cargo
 
 /target
+
+*.db
